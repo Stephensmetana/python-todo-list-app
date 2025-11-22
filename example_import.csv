@@ -1,0 +1,4 @@
+id,title,description,tags,status,priority,created_at,updated_at
+1a2b3c,Buy groceries,Buy milk and eggs,"["shopping","urgent"]",TODO,2,2025-11-22T10:00:00,2025-11-22T10:00:00
+2b3c4d,Read book,Finish reading "Python 101","["reading"]",IN_PROGRESS,3,2025-11-21T09:00:00,2025-11-21T09:30:00
+3c4d5e,Write report,Monthly sales report,"["work"]",DONE,1,2025-11-20T08:00:00,2025-11-20T12:00:00
