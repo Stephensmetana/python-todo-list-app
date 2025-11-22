@@ -1,6 +1,15 @@
 from typing import List, Optional, Dict
-from models import TodoItem, TodoCreate, TodoUpdate, TodoStatus
+from todo_app.models import TodoItem, TodoCreate, TodoUpdate, TodoStatus
 # Get todos by priority
+
+def get_by_id(tid: str) -> Optional[TodoItem]:
+    conn = _conn()
+    row = conn.execute("SELECT * FROM todos WHERE id = ?", (tid,)).fetchone()
+    conn.close()
+    if row:
+        return _row_to_item(row)
+    return None
+
 def get_by_priority(priority: int) -> List[TodoItem]:
     conn = _conn()
     rows = conn.execute("SELECT * FROM todos WHERE priority = ? ORDER BY created_at DESC", (priority,)).fetchall()
@@ -49,6 +58,16 @@ def bulk_update_priority(ids: List[str], priority: int) -> int:
     count = cur.rowcount
     conn.close()
     return count
+from typing import List, Optional, Dict
+from todo_app.models import TodoItem, TodoCreate, TodoUpdate, TodoStatus
+
+def get_by_id(tid: str) -> Optional[TodoItem]:
+    conn = _conn()
+    row = conn.execute("SELECT * FROM todos WHERE id = ?", (tid,)).fetchone()
+    conn.close()
+    if row:
+        return _row_to_item(row)
+    return None
 # List all unique tags
 def list_tags() -> List[str]:
     conn = _conn()
@@ -143,7 +162,7 @@ import sqlite3
 from typing import Optional, List, Dict
 import json
 from datetime import datetime
-from models import TodoItem, TodoCreate, TodoUpdate, TodoStatus
+from .models import TodoItem, TodoCreate, TodoUpdate, TodoStatus
 import uuid
 
 DB_PATH = "todos.db"
@@ -198,11 +217,20 @@ def insert_todo(todo_create: TodoCreate) -> TodoItem:
     conn.close()
     return _row_to_item(row)
 
+
 def get_all() -> List[TodoItem]:
     conn = _conn()
     rows = conn.execute("SELECT * FROM todos ORDER BY created_at DESC").fetchall()
     conn.close()
     return [_row_to_item(r) for r in rows]
+
+def get_by_id(tid: str) -> Optional[TodoItem]:
+    conn = _conn()
+    row = conn.execute("SELECT * FROM todos WHERE id = ?", (tid,)).fetchone()
+    conn.close()
+    if row:
+        return _row_to_item(row)
+    return None
 
 def get_by_status(status: str):
     conn = _conn()
@@ -258,3 +286,4 @@ def delete_todo(tid: str) -> bool:
     deleted = cur.rowcount > 0
     conn.close()
     return deleted
+

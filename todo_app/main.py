@@ -1,26 +1,12 @@
 import argparse
-import storage
-from models import TodoCreate, TodoUpdate, TodoStatus, PRIORITY_MIN, PRIORITY_MAX
+from todo_app import storage
+from todo_app.models import TodoCreate, TodoUpdate, TodoStatus, PRIORITY_MIN, PRIORITY_MAX
 import sys
 
 def print_todo(todo):
     print(f"ID: {todo.id}\nTitle: {todo.title}\nDescription: {todo.description}\nTags: {todo.tags}\nStatus: {todo.status}\nPriority: {getattr(todo, 'priority', 3)}\nCreated: {todo.created_at}\nUpdated: {todo.updated_at}\n")
 
 def main():
-        import_new_parser = subparsers.add_parser("import-new", help="Create a new DB and import todos from file")
-        import_new_parser.add_argument("format", choices=["json", "csv"], help="Import format")
-        import_new_parser.add_argument("filepath", type=str, help="Input file path")
-        import os
-        elif args.command == "import-new":
-            # Remove DB file if it exists
-            if os.path.exists(storage.DB_PATH):
-                os.remove(storage.DB_PATH)
-            storage.init_db()
-            if args.format == "json":
-                storage.import_todos_json(args.filepath)
-            else:
-                storage.import_todos_csv(args.filepath)
-            print(f"Created new DB and imported todos from {args.filepath}.")
     parser = argparse.ArgumentParser(description="ToDo List CLI App")
     subparsers = parser.add_subparsers(dest="command")
 
@@ -54,6 +40,7 @@ def main():
     update_parser.add_argument("--tags", nargs="*", help="New tags", default=None)
     update_parser.add_argument("--status", type=str, choices=[s.value for s in TodoStatus], help="New status", default=None)
     update_parser.add_argument("--priority", type=int, choices=range(PRIORITY_MIN, PRIORITY_MAX+1), help="New priority (1-5)", default=None)
+
     # Export/Import
     export_parser = subparsers.add_parser("export", help="Export todos to file")
     export_parser.add_argument("format", choices=["json", "csv"], help="Export format")
@@ -62,6 +49,11 @@ def main():
     import_parser = subparsers.add_parser("import", help="Import todos from file")
     import_parser.add_argument("format", choices=["json", "csv"], help="Import format")
     import_parser.add_argument("filepath", type=str, help="Input file path")
+
+    # Import-new (create new DB and import)
+    import_new_parser = subparsers.add_parser("import-new", help="Create a new DB and import todos from file")
+    import_new_parser.add_argument("format", choices=["json", "csv"], help="Import format")
+    import_new_parser.add_argument("filepath", type=str, help="Input file path")
 
     # Tag management
     subparsers.add_parser("list-tags", help="List all tags")
@@ -98,6 +90,8 @@ def main():
 
     args = parser.parse_args()
 
+    import os
+
     if args.command == "add":
         todo = storage.insert_todo(TodoCreate(args.title, args.description, args.tags, args.priority))
         print("Added todo:")
@@ -132,44 +126,54 @@ def main():
             print_todo(todo)
         else:
             print("Todo not found.")
-        elif args.command == "export":
-            if args.format == "json":
-                storage.export_todos_json(args.filepath)
-            else:
-                storage.export_todos_csv(args.filepath)
-            print(f"Exported todos to {args.filepath}.")
-        elif args.command == "import":
-            if args.format == "json":
-                storage.import_todos_json(args.filepath)
-            else:
-                storage.import_todos_csv(args.filepath)
-            print(f"Imported todos from {args.filepath}.")
-        elif args.command == "list-tags":
-            tags = storage.list_tags()
-            print("Tags:", tags)
-        elif args.command == "rename-tag":
-            count = storage.rename_tag(args.old_tag, args.new_tag)
-            print(f"Renamed tag in {count} todos.")
-        elif args.command == "delete-tag":
-            count = storage.delete_tag_from_all(args.tag)
-            print(f"Deleted tag from {count} todos.")
-        elif args.command == "bulk-update-status":
-            count = storage.bulk_update_status(args.ids, args.status)
-            print(f"Updated status for {count} todos.")
-        elif args.command == "bulk-delete":
-            count = storage.bulk_delete(args.ids)
-            print(f"Deleted {count} todos.")
-        elif args.command == "bulk-update-priority":
-            count = storage.bulk_update_priority(args.ids, args.priority)
-            print(f"Updated priority for {count} todos.")
-        elif args.command == "priority":
-            todos = storage.get_by_priority(args.priority)
-            for t in todos:
-                print_todo(t)
-        elif args.command == "list-sorted-priority":
-            todos = storage.get_all_sorted_by_priority()
-            for t in todos:
-                print_todo(t)
+    elif args.command == "export":
+        if args.format == "json":
+            storage.export_todos_json(args.filepath)
+        else:
+            storage.export_todos_csv(args.filepath)
+        print(f"Exported todos to {args.filepath}.")
+    elif args.command == "import":
+        if args.format == "json":
+            storage.import_todos_json(args.filepath)
+        else:
+            storage.import_todos_csv(args.filepath)
+        print(f"Imported todos from {args.filepath}.")
+    elif args.command == "import-new":
+        # Remove DB file if it exists
+        if os.path.exists(storage.DB_PATH):
+            os.remove(storage.DB_PATH)
+        storage.init_db()
+        if args.format == "json":
+            storage.import_todos_json(args.filepath)
+        else:
+            storage.import_todos_csv(args.filepath)
+        print(f"Created new DB and imported todos from {args.filepath}.")
+    elif args.command == "list-tags":
+        tags = storage.list_tags()
+        print("Tags:", tags)
+    elif args.command == "rename-tag":
+        count = storage.rename_tag(args.old_tag, args.new_tag)
+        print(f"Renamed tag in {count} todos.")
+    elif args.command == "delete-tag":
+        count = storage.delete_tag_from_all(args.tag)
+        print(f"Deleted tag from {count} todos.")
+    elif args.command == "bulk-update-status":
+        count = storage.bulk_update_status(args.ids, args.status)
+        print(f"Updated status for {count} todos.")
+    elif args.command == "bulk-delete":
+        count = storage.bulk_delete(args.ids)
+        print(f"Deleted {count} todos.")
+    elif args.command == "bulk-update-priority":
+        count = storage.bulk_update_priority(args.ids, args.priority)
+        print(f"Updated priority for {count} todos.")
+    elif args.command == "priority":
+        todos = storage.get_by_priority(args.priority)
+        for t in todos:
+            print_todo(t)
+    elif args.command == "list-sorted-priority":
+        todos = storage.get_all_sorted_by_priority()
+        for t in todos:
+            print_todo(t)
     elif args.command == "delete":
         ok = storage.delete_todo(args.id)
         if ok:

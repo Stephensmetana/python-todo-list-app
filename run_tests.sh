@@ -28,8 +28,12 @@ if ! $PYTHON_CMD -m pytest --version &> /dev/null; then
     $PYTHON_CMD -m pip install --user pytest
 fi
 
-# Run pytest
-$PYTHON_CMD -m pytest
+
+# Set PYTHONPATH to the project root so todo_app is importable
+export PYTHONPATH="$SCRIPT_DIR"
+
+# Run pytest on the tests/ directory
+$PYTHON_CMD -m pytest tests/
 RESULT=$?
 if [ $RESULT -eq 0 ]; then
     echo "All tests passed!"
