@@ -7,7 +7,7 @@ name = "python-todo-list-app"
 version = "1.0.0"
 description = "A fully featured command-line todo list manager with import/export, tags, priorities, and more."
 authors = [
-    { name = "Your Name", email = "your.email@example.com" }
+    { name = "Stephen Smetana" }
 ]
 readme = "README.md"
 requires-python = ">=3.8"
