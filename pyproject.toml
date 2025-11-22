@@ -19,4 +19,5 @@ dependencies = [
 todo-app = "todo_app.main:main"
 
 [tool.setuptools.packages.find]
-where = ["todo_app"]
+where = ["."]
+include = ["todo_app*"]
